@@ -1,0 +1,22 @@
+{
+  "name": "FeedBuddy",
+  "short_name": "FeedBuddy",
+  "description": "Aplikasi pendamping orang tua baru — lacak menyusui & popok",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00B4A6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/app-icon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "img/app-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
