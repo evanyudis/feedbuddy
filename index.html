@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>FeedBuddy</title>
-  <meta name="description" content="Aplikasi pendamping orang tua baru — lacak menyusui & popok">
+  <meta name="description" content="Aplikasi lacak menyusui & popok bayi">
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00B4A6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#F7F3F5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1B1B1E" media="(prefers-color-scheme: dark)">
   <link rel="apple-touch-icon" href="img/app-icon.jpg">
   <link rel="icon" type="image/jpeg" href="img/app-icon.jpg">
@@ -47,147 +47,158 @@
     </div>
   </header>
 
-  <!-- TAB NAV -->
-  <nav id="tab-nav">
-    <button class="tab-btn active" data-tab="bf" aria-label="Menyusui">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2h8l2 6H6L8 2z"/><path d="M6 8v14c0 1 1 2 2 2h8c1 0 2-1 2-2V8"/><path d="M12 12v6"/></svg>
-      <span>Menyusui</span>
-    </button>
-    <button class="tab-btn" data-tab="diaper" aria-label="Popok">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="4"/><path d="M7 6V4c0-1 1-2 2-2h6c1 0 2 1 2 2v2"/></svg>
-      <span>Popok</span>
-    </button>
-    <button class="tab-btn" data-tab="history" aria-label="Riwayat">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span>Riwayat</span>
-    </button>
-    <button class="tab-btn" data-tab="settings" aria-label="Settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span>Setelan</span>
-    </button>
-  </nav>
+  <!-- HERO: Baby age -->
+  <section class="hero-section" id="hero-section">
+    <p class="hero-label">Usia Bayi</p>
+    <h1 class="hero-date" id="hero-date-display">0 hari</h1>
+    <div class="hero-week" id="hero-subtitle">0 minggu 0 hari</div>
+  </section>
 
   <!-- TAB PANELS -->
   <main id="tab-panels">
 
-    <!-- BREASTFEEDING PANEL -->
-    <section id="panel-bf" class="panel active">
+    <!-- MENYUSUI -->
+    <section id="panel-menyusui" class="panel active">
       <div class="timer-card">
         <h2 class="section-title">Timer Menyusui</h2>
-        <p class="timer-subtitle" id="bf-timer-subtitle">Tekan mulai saat bayi mulai menyusu</p>
-        <div class="timer-display" id="bf-timer-display">00:00</div>
-        <div class="side-picker" id="side-picker">
-          <p class="picker-label">Pilih sisi:</p>
-          <div class="side-btns">
-            <button class="side-btn" data-side="left">Kiri</button>
-            <button class="side-btn selected" data-side="right">Kanan</button>
-          </div>
+        <p class="timer-subtitle" id="menyusui-subtitle">Pilih sisi dan mulai</p>
+
+        <!-- Breast selection -->
+        <div class="segmented-control" id="side-picker" style="margin: var(--sp-4) auto; max-width: 280px;">
+          <button class="segment-btn active" data-side="left" style="flex:1;">Kiri</button>
+          <button class="segment-btn" data-side="right" style="flex:1;">Kanan</button>
         </div>
+
+        <div class="timer-display" id="menyusui-display">00:00</div>
         <div class="timer-controls">
-          <button id="btn-bf-toggle" class="btn btn-primary btn-primary pulse-anim" aria-live="polite">
-            <span id="btn-bf-text">MULAI</span>
+          <button id="btn-menyusui-toggle" class="btn btn-primary pulse-anim">
+            <span id="btn-menyusui-text">MULAI</span>
           </button>
-          <button id="btn-bf-reset" class="btn btn-ghost" style="display:none;">Reset</button>
+          <button id="btn-menyusui-reset" class="btn btn-ghost" style="display:none;">Reset</button>
         </div>
       </div>
 
-      <div id="bf-stats" class="stats-row hidden">
+      <div id="menyusui-stats" class="stats-row">
         <div class="stat-card">
-          <span class="stat-value" id="stat-bf-today">0</span>
+          <span class="stat-value teal" id="stat-bf-sessions">0</span>
           <span class="stat-label">Sesi Hari Ini</span>
         </div>
         <div class="stat-card">
-          <span class="stat-value" id="stat-bf-total">0</span>
-          <span class="stat-label">Total Durasi</span>
+          <span class="stat-value" id="stat-bf-duration">0m</span>
+          <span class="stat-label">Total Hari Ini</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-bf-last-side">--</span>
+          <span class="stat-label">Sisi Terakhir</span>
         </div>
       </div>
 
       <div class="panel-section">
         <div class="row-header">
           <h3>Riwayat Menyusui</h3>
-          <button id="btn-clear-bf" class="btn btn-ghost btn-sm">Hapus Semua</button>
+          <button id="btn-clear-menyusui" class="btn btn-ghost btn-sm">Hapus</button>
         </div>
-        <div id="bf-log" class="log-list">
+        <div id="menyusui-log" class="log-list">
           <div class="empty-state">
             <div class="empty-state-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2h8l2 6H6L8 2z"/><path d="M6 8v14c0 1 1 2 2 2h8c1 0 2-1 2-2V8"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-5 6-5 10a5 5 0 1010 0c0-4-5-10-5-10z"/></svg>
             </div>
             <div class="empty-state-title">Belum ada sesi</div>
-            <div class="empty-state-desc">Tekan MULAI saat bayi mulai menyusu.</div>
+            <div class="empty-state-desc">Tekan MULAI saat mulai menyusui.</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- DIAPER PANEL -->
-    <section id="panel-diaper" class="panel">
-      <div class="diaper-status-card">
-        <h2 class="section-title">Status Popok</h2>
-        <div class="last-change-display">
-          <span class="last-change-label">Terakhir diganti</span>
-          <span class="last-change-time" id="last-diaper-time">--</span>
+    <!-- POPOK -->
+    <section id="panel-popok" class="panel">
+      <div class="timer-card">
+        <h2 class="section-title">Ganti Popok</h2>
+        <p class="timer-subtitle" id="popok-subtitle">Tekan sesuai kondisi</p>
+
+        <div class="bento-grid" id="popok-type-grid" style="margin-top: var(--sp-4);">
+          <button class="symptom-btn" data-type="basah" style="--btn-bg: var(--teal-light); color: var(--teal);">
+            <span class="symptom-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2c0 0-5 6-5 10a5 5 0 1010 0c0-4-5-10-5-10z"/></svg></span>
+            Basah
+          </button>
+          <button class="symptom-btn" data-type="kotor" style="--btn-bg: var(--warning-light); color: var(--warning);">
+            <span class="symptom-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 12c1.5 1.5 3 1.5 4 0"/></svg></span>
+            Kotor
+          </button>
+          <button class="symptom-btn" data-type="campuran" style="--btn-bg: var(--accent-light); color: var(--accent);">
+            <span class="symptom-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2c0 0-5 6-5 10a5 5 0 1010 0c0-4-5-10-5-10z"/><circle cx="12" cy="12" r="4"/></svg></span>
+            Campuran
+          </button>
         </div>
-        <div class="diaper-type-grid">
-          <button class="diaper-btn diaper-wet" data-type="wet" aria-label="Basah">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-5 6-5 10a5 5 0 1010 0c0-4-5-10-5-10z"/></svg>
-            <span>Basah</span>
-          </button>
-          <button class="diaper-btn diaper-poop" data-type="poop" aria-label="Kotor">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
-            <span>Kotor</span>
-          </button>
-          <button class="diaper-btn diaper-mixed" data-type="mixed" aria-label="Campuran">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-5 6-5 10a5 5 0 1010 0c0-4-5-10-5-10z"/><circle cx="12" cy="12" r="4"/></svg>
-            <span>Campuran</span>
-          </button>
+
+        <div style="margin-top: var(--sp-5); padding: var(--sp-4); background: var(--bg-grouped); border-radius: var(--r-lg); text-align: center;">
+          <p style="font-size: 0.75rem; color: var(--text-3); margin-bottom: var(--sp-2);">Ganti Terakhir</p>
+          <p style="font-size: 1.4rem; font-weight: 700; color: var(--text-1);" id="last-popok-time">--</p>
+          <p style="font-size: 0.8rem; color: var(--text-2);" id="last-popok-type">--</p>
         </div>
       </div>
 
-      <div id="diaper-reminder" class="reminder-card hidden">
-        <div class="reminder-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-value teal" id="stat-popok-today">0</span>
+          <span class="stat-label">Hari Ini</span>
         </div>
-        <div class="reminder-content">
-          <strong>Perubahan popok</strong>
-          <p id="reminder-text">Sudah lebih dari 4 jam</p>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-popok-since">--</span>
+          <span class="stat-label">Sejak Terakhir</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-popok-basah">0</span>
+          <span class="stat-label">Basah</span>
         </div>
       </div>
 
       <div class="panel-section">
         <div class="row-header">
           <h3>Riwayat Popok</h3>
-          <button id="btn-clear-diaper" class="btn btn-ghost btn-sm">Hapus Semua</button>
+          <button id="btn-clear-popok" class="btn btn-ghost btn-sm">Hapus</button>
         </div>
-        <div id="diaper-log" class="log-list">
+        <div id="popok-log" class="log-list">
           <div class="empty-state">
             <div class="empty-state-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="4"/><path d="M7 6V4c0-1 1-2 2-2h6c1 0 2 1 2 2v2"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8"/></svg>
             </div>
             <div class="empty-state-title">Belum ada catatan</div>
-            <div class="empty-state-desc">Ketuk tombol di atas untuk mencatat.</div>
+            <div class="empty-state-desc">Tekan Basah, Kotor, atau Campuran untuk mencatat.</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- HISTORY PANEL -->
-    <section id="panel-history" class="panel">
-      <div class="history-header">
-        <h2 class="section-title">Riwayat Terakhir</h2>
-        <span class="history-count" id="history-count">0 entri</span>
-      </div>
-      <div id="history-list" class="log-list">
-        <div class="empty-state">
-          <div class="empty-state-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <!-- RIWAYAT -->
+    <section id="panel-riwayat" class="panel">
+      <div class="panel-section">
+        <div class="row-header">
+          <h3>Hari Ini</h3>
+        </div>
+        <div id="riwayat-today-log" class="log-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="empty-state-title">Belum ada aktivitas</div>
+            <div class="empty-state-desc">Catatan menyusui dan popok akan muncul di sini.</div>
           </div>
-          <div class="empty-state-title">Belum ada aktivitas</div>
-          <div class="empty-state-desc">Riwayat akan muncul setelah mencatat.</div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="row-header">
+          <h3>Kemarin</h3>
+        </div>
+        <div id="riwayat-yesterday-log" class="log-list">
+          <div class="empty-state">
+            <div class="empty-state-title" style="font-size:0.85rem;">Tidak ada data kemarin</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- SETTINGS PANEL -->
+    <!-- SETTINGS -->
     <section id="panel-settings" class="panel">
       <div style="padding: var(--sp-2) 0 var(--sp-8);">
 
@@ -195,17 +206,17 @@
           <p class="settings-section-label">Informasi Bayi</p>
           <div class="settings-list">
             <div class="settings-row">
+              <span class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+              <div class="settings-row-body"><div class="settings-row-label">Tanggal Lahir</div></div>
+              <div class="settings-row-control">
+                <input type="date" id="setting-birth-date" class="settings-input" value="2026-04-14">
+              </div>
+            </div>
+            <div class="settings-row">
               <span class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
               <div class="settings-row-body"><div class="settings-row-label">Nama Bayi</div></div>
               <div class="settings-row-control">
                 <input type="text" id="setting-baby-name" class="settings-input" placeholder="Nama...">
-              </div>
-            </div>
-            <div class="settings-row">
-              <span class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-              <div class="settings-row-body"><div class="settings-row-label">Tanggal Lahir</div></div>
-              <div class="settings-row-control">
-                <input type="date" id="setting-birth-date" class="settings-input" value="">
               </div>
             </div>
           </div>
@@ -218,7 +229,7 @@
               <div style="display: flex; align-items: center; width: 100%; gap: var(--sp-3);">
                 <span class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
                 <div class="settings-row-body" style="flex: 1;">
-                  <div class="settings-row-label">Tema Aplikasi</div>
+                  <div class="settings-row-label">Tampilan Aplikasi</div>
                 </div>
               </div>
               <div class="segmented-control" id="theme-switcher" style="width: 100%; margin-top: var(--sp-3);">
@@ -233,7 +244,7 @@
         <div class="settings-section">
           <p class="settings-section-label">Data</p>
           <div class="settings-list">
-            <div class="settings-row" style="cursor:pointer;" id="btn-export-data">
+            <div class="settings-row" id="btn-export-data" style="cursor:pointer;">
               <span class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
               <div class="settings-row-body settings-row-btn">
                 <div class="settings-row-label">Ekspor Data</div>
@@ -241,7 +252,7 @@
               </div>
               <span class="settings-chevron">&#8250;</span>
             </div>
-            <div class="settings-row" style="cursor:pointer;" id="btn-clear-all-data">
+            <div class="settings-row" id="btn-clear-all-data" style="cursor:pointer;">
               <span class="settings-row-icon" style="background: var(--danger-light); color: var(--danger);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></span>
               <div class="settings-row-body">
                 <button class="btn-danger-text">Hapus Semua Data</button>
@@ -251,24 +262,77 @@
           </div>
         </div>
 
-        <div class="settings-section">
-          <p class="settings-section-label">Tentang</p>
-          <div class="settings-list">
-            <div class="settings-row">
-              <span class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
-              <div class="settings-row-body">
-                <div class="settings-row-label">FeedBuddy</div>
-                <div class="settings-row-desc">v1.0.0 — Untuk orang tua baru</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <p style="text-align:center;font-size:0.74rem;color:var(--text-3);padding:var(--sp-6) 0 0;">
+          FeedBuddy &bull; v1.0<br>
+          Built by ❤️ for every new parents
+        </p>
       </div>
     </section>
 
   </main>
+
+  <!-- TOAST -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" id="tab-nav">
+    <button class="tab-btn active" data-tab="menyusui">
+      <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-5 6-5 10a5 5 0 1010 0c0-4-5-10-5-10z"/></svg></span>
+      <span>Menyusui</span>
+    </button>
+    <button class="tab-btn" data-tab="popok">
+      <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8"/></svg></span>
+      <span>Popok</span>
+    </button>
+    <button class="tab-btn" data-tab="riwayat">
+      <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+      <span>Riwayat</span>
+    </button>
+    <button class="tab-btn" data-tab="settings">
+      <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+      <span>Pengaturan</span>
+    </button>
+  </nav>
+
+</div><!-- /#app -->
+
+<!-- ONBOARDING OVERLAY -->
+<div id="onboarding-overlay" class="onboarding-overlay hidden" role="dialog" aria-modal="true">
+  <div class="onboarding-container">
+    <div class="onboarding-double-bezel stagger-item stagger-1">
+      <div class="onboarding-inner">
+        <div class="onboarding-header stagger-item stagger-2">
+          <div class="onboarding-logo-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c0 0-5 6-5 10a5 5 0 1010 0c0-4-5-10-5-10z"/></svg>
+          </div>
+          <h1 class="onboarding-title">Selamat datang</h1>
+          <p class="onboarding-subtitle">Mari mulai lacak perjalanan menyusui si kecil.</p>
+        </div>
+        <div class="onboarding-field stagger-item stagger-3">
+          <label class="onboarding-label" for="onboard-birth-date">Tanggal Lahir</label>
+          <input type="date" id="onboard-birth-date" class="onboarding-input" value="2026-04-14" required>
+        </div>
+        <div class="onboarding-field stagger-item stagger-4">
+          <label class="onboarding-label" for="onboard-baby-name">Nama Bayi</label>
+          <input type="text" id="onboard-baby-name" class="onboarding-input" placeholder="Panggilan bayi...">
+        </div>
+        <button id="btn-finish-onboarding" class="btn btn-primary stagger-item stagger-6" style="width:100%;margin-top:var(--sp-5);">
+          Mulai Sekarang
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(r => console.log('[SW] registered', r.scope))
+        .catch(e => console.warn('[SW] failed:', e));
+    });
+  }
+</script>
 <script src="app.js"></script>
 </body>
 </html>
