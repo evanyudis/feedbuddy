@@ -392,14 +392,28 @@ function handleFeedingStop() {
   renderFeedingSchedule();
 }
 
+function updateSegmentBtnActive(groupId) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.segment-btn').forEach(b => {
+    const isActive = b.classList.contains('active');
+    b.style.background = isActive ? 'var(--accent)' : 'transparent';
+    b.style.color = isActive ? 'var(--text-inv)' : 'var(--text-2)';
+    b.style.fontWeight = isActive ? '600' : '400';
+  });
+}
+
 function initFeeding() {
-  // Side picker
+  // Side picker — ensure active state renders correctly on init
+  updateSegmentBtnActive('side-picker');
+
   document.getElementById('side-picker').addEventListener('click', e => {
     const btn = e.target.closest('.segment-btn');
     if (!btn) return;
     document.querySelectorAll('#side-picker .segment-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     feedingState.side = btn.dataset.side;
+    updateSegmentBtnActive('side-picker');
     if (!feedingState.running) {
       document.getElementById('feeding-subtitle').textContent = `Sisi ${feedingState.side === 'left' ? 'KIRI' : 'KANAN'} — siap mulai`;
     }
@@ -427,20 +441,37 @@ function initFeeding() {
 // ============================================================
 let scheduleInterval = null;
 
+function feedingIntervalHours() {
+  const bd = settings.birthDate ? new Date(settings.birthDate + 'T00:00:00') : new Date('2026-04-14T00:00:00');
+  const ageDays = Math.max(0, Math.floor((Date.now() - bd) / 86400000));
+  const weeks = ageDays / 7;
+  if (weeks < 4) return 2;
+  if (weeks < 8) return 2.5;
+  if (weeks < 13) return 3;
+  return 4;
+}
+
 function renderFeedingSchedule() {
   const last = getLastBF();
   const intervalH = feedingIntervalHours();
   const intervalMs = intervalH * 3600000;
+  const bd = settings.birthDate ? new Date(settings.birthDate + 'T00:00:00') : new Date('2026-04-14T00:00:00');
+  const ageDays = Math.max(0, Math.floor((Date.now() - bd) / 86400000));
+  const weeks = Math.floor(ageDays / 7);
+  const days = ageDays % 7;
 
   const nextEl = document.getElementById('next-feeding-display');
   const lastEl = document.getElementById('last-feed-display');
-  const hintEl = document.getElementById('feeding-interval-hint');
+  const ageEl = document.getElementById('baby-age-display');
+  const intEl = document.getElementById('interval-hint-value');
 
-  if (intervalH >= 4) {
-    hintEl.textContent = 'On demand (>3 bulan)';
+  // Update age + interval context
+  if (weeks > 0) {
+    ageEl.textContent = `${weeks} minggu ${days} hari`;
   } else {
-    hintEl.textContent = `Newborn: every ${intervalH} hours`;
+    ageEl.textContent = `${ageDays} hari`;
   }
+  intEl.textContent = intervalH >= 4 ? 'on demand' : `${intervalH} jam`;
 
   if (!last) {
     nextEl.textContent = '--';
@@ -571,12 +602,15 @@ function savePumpingSession() {
 }
 
 function initPumping() {
+  updateSegmentBtnActive('pump-side-picker');
+
   document.getElementById('pump-side-picker').addEventListener('click', e => {
     const btn = e.target.closest('.segment-btn');
     if (!btn) return;
     document.querySelectorAll('#pump-side-picker .segment-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     pumpingState.side = btn.dataset.pumpSide;
+    updateSegmentBtnActive('pump-side-picker');
   });
 
   document.getElementById('btn-pumping-toggle').addEventListener('click', () => {
