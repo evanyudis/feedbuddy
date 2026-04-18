@@ -739,6 +739,19 @@ function initSettings() {
   document.getElementById('setting-baby-name').value = settings.babyName || '';
   document.getElementById('ui-baby-name').textContent = settings.babyName || 'Baby';
 
+  // Gender — sync select + apply data-gender on documentElement
+  const genderEl = document.getElementById('setting-gender');
+  if (genderEl) {
+    genderEl.value = settings.gender || 'girl';
+    document.documentElement.setAttribute('data-gender', settings.gender || 'girl');
+    genderEl.addEventListener('change', e => {
+      settings.gender = e.target.value;
+      document.documentElement.setAttribute('data-gender', e.target.value);
+      save(K.settings, settings);
+      toast(e.target.value === 'girl' ? 'Tema pink aktif' : 'Tema biru aktif');
+    });
+  }
+
   // Birth date
   document.getElementById('setting-birth-date').addEventListener('change', e => {
     settings.birthDate = e.target.value;
