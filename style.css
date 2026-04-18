@@ -819,3 +819,110 @@ body {
   60%  { opacity: 1; }
   100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
 }
+
+/* ========================
+   Floating Player Bar — Spotify-style Now Playing
+   ======================== */
+.floating-player {
+  position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  padding: 6px 10px 6px 6px;
+  box-shadow: 0 4px 24px oklch(0% 0 0 / 0.20), 0 0 0 1px oklch(0% 0 0 / 0.05);
+  max-width: calc(100vw - 48px);
+  animation: fpSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+@keyframes fpSlideIn {
+  from { transform: translateX(-50%) translateY(80px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+
+@keyframes fpSlideOut {
+  from { transform: translateX(-50%) translateY(0);    opacity: 1; }
+  to   { transform: translateX(-50%) translateY(80px); opacity: 0; }
+}
+
+.fp-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-1);
+}
+
+.fp-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--accent-light);
+  border-radius: var(--r-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.fp-icon svg { width: 14px; height: 14px; stroke-width: 2; }
+
+.fp-label {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.fp-timer {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border-subtle);
+}
+
+.fp-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-full);
+  background: var(--bg-grouped);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.fp-btn:active { background: var(--accent-light); color: var(--accent); }
+
+.floating-player.hiding {
+  animation: fpSlideOut 0.25s cubic-bezier(0.36, 0, 0.66, -0.3) forwards;
+}

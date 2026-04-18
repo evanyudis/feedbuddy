@@ -74,6 +74,8 @@ function initTabs() {
     btn.classList.add('active');
     document.getElementById('panel-' + tab)?.classList.add('active');
     if (tab === 'feeding') renderFeedingSchedule();
+    checkFloatingPlayerVisibility();
+    document.dispatchEvent(new CustomEvent('tabswitch', { detail: { tab } }));
   });
 }
 
@@ -881,12 +883,118 @@ function injectStyles() {
 }
 
 // ============================================================
+// FLOATING PLAYER BAR — Spotify-style Now Playing
+// ============================================================
+let fpInterval = null;
+
+function showFloatingPlayer() {
+  const el = document.getElementById('floating-player');
+  if (!el || el.classList.contains('hiding')) {
+    el.classList.remove('hidden', 'hiding');
+    el.style.animation = 'none';
+    el.offsetHeight; // reflow
+    el.style.animation = '';
+  }
+}
+
+function hideFloatingPlayer(animate = true) {
+  const el = document.getElementById('floating-player');
+  if (!el) return;
+  if (animate) {
+    el.classList.add('hiding');
+    setTimeout(() => {
+      el.classList.add('hidden');
+      el.classList.remove('hiding');
+    }, 250);
+  } else {
+    el.classList.add('hidden');
+  }
+  if (fpInterval) { clearInterval(fpInterval); fpInterval = null; }
+}
+
+function updateFloatingPlayer() {
+  const labelEl = document.getElementById('fp-label');
+  const timerEl = document.getElementById('fp-timer');
+  const pauseBtn = document.getElementById('fp-pause');
+  const stopBtn = document.getElementById('fp-stop');
+  const iconSvg = document.getElementById('fp-icon-svg');
+
+  // Detect which timer is running
+  if (feedingState.running) {
+    const elapsed = Date.now() - feedingState.startTime;
+    const side = feedingState.side === 'left' ? 'Kiri' : 'Kanan';
+    labelEl.textContent = `Menyusu ${side}`;
+    timerEl.textContent = formatDur(elapsed);
+    // Icon: heart
+    iconSvg.innerHTML = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>';
+    // Pause → pause feeding
+    pauseBtn.onclick = () => { stopFeedingTimer(); hideFloatingPlayer(); };
+    // Stop → stop feeding
+    stopBtn.onclick = () => { stopFeedingTimer(); hideFloatingPlayer(); };
+    return;
+  }
+
+  if (pumpingState.running) {
+    const elapsed = Date.now() - pumpingState.startTime;
+    const sideLabels = { left: 'Kiri', right: 'Kanan', both: 'Kedua' };
+    labelEl.textContent = `Pumping ${sideLabels[pumpingState.side] || ''}`;
+    timerEl.textContent = formatDur(elapsed);
+    // Icon: cube
+    iconSvg.innerHTML = '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>';
+    pauseBtn.onclick = () => { stopPumpingTimer(); hideFloatingPlayer(); };
+    stopBtn.onclick = () => { stopPumpingTimer(); hideFloatingPlayer(); };
+    return;
+  }
+
+  // No timer running
+  hideFloatingPlayer();
+}
+
+function checkFloatingPlayerVisibility() {
+  const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+  const isTimerTab = activeTab === 'feed' || activeTab === 'pumping';
+
+  if (feedingState.running || pumpingState.running) {
+    if (!isTimerTab) {
+      // Timer running but user NOT on timer tab → show bar
+      if (!fpInterval) fpInterval = setInterval(updateFloatingPlayer, 1000);
+      updateFloatingPlayer();
+      showFloatingPlayer();
+    } else {
+      // On the timer tab → hide bar
+      hideFloatingPlayer();
+    }
+  } else {
+    hideFloatingPlayer(false);
+  }
+}
+
+function initFloatingPlayer() {
+  // Click trigger → jump to the right tab
+  document.getElementById('fp-trigger').addEventListener('click', () => {
+    if (feedingState.running) {
+      switchTab('feed');
+    } else if (pumpingState.running) {
+      switchTab('pumping');
+    }
+    hideFloatingPlayer();
+  });
+
+  // Visibility change (tab switch / page hide)
+  document.addEventListener('visibilitychange', checkFloatingPlayerVisibility);
+
+  // Also listen to tab switches
+  document.addEventListener('tabswitch', checkFloatingPlayerVisibility);
+}
+
+// ============================================================
 // INIT
 // ============================================================
 function init() {
   injectStyles();
   initTheme();
   initTabs();
+  initFloatingPlayer();
   initFeeding();
   initSchedule();
   initPumping();
