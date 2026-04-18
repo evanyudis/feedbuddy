@@ -746,10 +746,12 @@ function initSettings() {
   if (genderEl) {
     genderEl.value = settings.gender || 'girl';
     document.documentElement.setAttribute('data-gender', settings.gender || 'girl');
+    refreshAccentStyles();
     genderEl.addEventListener('change', e => {
       settings.gender = e.target.value;
       document.documentElement.setAttribute('data-gender', e.target.value);
       save(K.settings, settings);
+      refreshAccentStyles();
       toast(e.target.value === 'girl' ? 'Tema pink aktif' : 'Tema biru aktif');
     });
   }
@@ -776,12 +778,25 @@ function initSettings() {
     settings.theme = theme;
     save(K.settings, settings);
     applyTheme(theme);
-    ts.querySelectorAll('.segment-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.themeVal === theme);
-      b.style.background = b.classList.contains('active') ? 'var(--accent)' : 'transparent';
-      b.style.color = b.classList.contains('active') ? 'var(--text-inv)' : 'var(--text-2)';
-    });
+    refreshAccentStyles();
   }
+
+  function refreshAccentStyles() {
+    document.querySelectorAll('.segment-btn').forEach(b => {
+      if (b.classList.contains('active')) {
+        b.style.background = 'var(--accent)';
+        b.style.color = 'var(--text-inv)';
+      } else {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-2)';
+      }
+    });
+    const logoIcon = document.querySelector('.logo-icon');
+    if (logoIcon) logoIcon.style.color = 'var(--accent)';
+    const logoText = document.querySelector('.logo-text span');
+    if (logoText) logoText.style.color = 'var(--accent)';
+  }
+
   ts.addEventListener('click', e => {
     const btn = e.target.closest('.segment-btn');
     if (!btn) return;
