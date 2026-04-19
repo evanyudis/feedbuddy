@@ -507,7 +507,7 @@ function initSchedule() {
 // ============================================================
 // PUMPING TAB
 // ============================================================
-let pumpingState = { running: false, startTime: null, side: 'left', elapsed: 0 };
+let pumpingState = { running: false, startTime: null, side: 'left', elapsed: 0, mlUserEdited: false };
 let pumpingInterval = null;
 
 function getTodayPumping() { return pumpingLog.filter(p => isToday(p.timestamp)); }
@@ -541,7 +541,7 @@ function renderPumpingSessions() {
   el.innerHTML = today.slice().reverse().map(p => {
     const time = formatTime(p.timestamp);
     return `
-      <div class="log-item">
+      <div class="log-item" data-pump-id="${p.id}" style="cursor:pointer;">
         <div class="log-item-left">
           <span class="log-item-title">${sideLabels[p.side] || p.side}</span>
           <span class="log-item-time">${time}</span>
@@ -549,6 +549,14 @@ function renderPumpingSessions() {
         <span class="log-item-value teal">${p.ml}ml</span>
       </div>`;
   }).join('');
+
+  // Attach click-to-edit handlers
+  el.querySelectorAll('.log-item[data-pump-id]').forEach(item => {
+    item.addEventListener('click', () => {
+      const id = item.dataset.pumpId;
+      openEditPumpingModal(id);
+    });
+  });
 }
 
 function updatePumpingDisplay() {
@@ -581,6 +589,7 @@ function stopPumpingTimer() {
 
 function savePumpingSession() {
   const mlInput = document.getElementById('pump-ml-input');
+  const mlUnit = document.getElementById('pump-ml-unit');
   const ml = parseFloat(mlInput.value) || 0;
   if (ml <= 0) { toast('Masukkan jumlah ML'); return; }
 
@@ -594,6 +603,9 @@ function savePumpingSession() {
   save(K.pumpingLog, pumpingLog);
 
   mlInput.value = '';
+  pumpingState.mlUserEdited = false;
+  mlInput.classList.remove('user-edited');
+  mlUnit.classList.remove('user-edited');
   document.getElementById('pumping-display').textContent = '00:00';
   document.getElementById('btn-pumping-save').style.display = 'none';
   document.getElementById('pumping-subtitle').textContent = 'Catat hasil pumping';
@@ -601,6 +613,46 @@ function savePumpingSession() {
 
   renderPumpingStats();
   renderPumpingSessions();
+}
+
+function openEditPumpingModal(id) {
+  const session = pumpingLog.find(p => p.id === id);
+  if (!session) return;
+
+  const modal = document.getElementById('edit-pump-modal');
+  const desc = document.getElementById('edit-pump-desc');
+  const mlInput = document.getElementById('edit-pump-ml');
+  const sideLabels = { left: 'Kiri', right: 'Kanan', both: 'Kedua' };
+
+  desc.textContent = `${sideLabels[session.side] || session.side} · ${formatTime(session.timestamp)}`;
+  mlInput.value = session.ml;
+  modal.classList.remove('hidden');
+  mlInput.focus();
+  mlInput.select();
+
+  function cleanup() {
+    modal.classList.add('hidden');
+    document.getElementById('edit-pump-save').removeEventListener('click', onSave);
+    document.getElementById('edit-pump-cancel').removeEventListener('click', onCancel);
+  }
+
+  function onSave() {
+    const newMl = parseFloat(mlInput.value) || 0;
+    if (newMl <= 0) { toast('Masukkan jumlah ML'); return; }
+    session.ml = newMl;
+    save(K.pumpingLog, pumpingLog);
+    cleanup();
+    toast(`${newMl}ml disimpan`);
+    renderPumpingStats();
+    renderPumpingSessions();
+  }
+
+  function onCancel() {
+    cleanup();
+  }
+
+  document.getElementById('edit-pump-save').addEventListener('click', onSave);
+  document.getElementById('edit-pump-cancel').addEventListener('click', onCancel);
 }
 
 function initPumping() {
@@ -632,6 +684,21 @@ function initPumping() {
       renderPumpingStats();
       renderPumpingSessions();
       toast('Riwayat pumping dihapus');
+    }
+  });
+
+  // Detect user manual edit → bright accent color
+  const mlInput = document.getElementById('pump-ml-input');
+  const mlUnit = document.getElementById('pump-ml-unit');
+  mlInput.addEventListener('input', () => {
+    if (mlInput.value && mlInput.value !== '') {
+      pumpingState.mlUserEdited = true;
+      mlInput.classList.add('user-edited');
+      mlUnit.classList.add('user-edited');
+    } else {
+      pumpingState.mlUserEdited = false;
+      mlInput.classList.remove('user-edited');
+      mlUnit.classList.remove('user-edited');
     }
   });
 
@@ -774,10 +841,28 @@ function initSettings() {
 
   // Theme
   const ts = document.getElementById('theme-switcher');
+  let systemThemeQuery = null;
+  let systemThemeListener = null;
+
   function setTheme(theme) {
+    // Clean up previous system theme listener if exists
+    if (systemThemeQuery) {
+      systemThemeQuery.removeEventListener('change', systemThemeListener);
+      systemThemeQuery = null;
+      systemThemeListener = null;
+    }
+
     settings.theme = theme;
     save(K.settings, settings);
     applyTheme(theme);
+
+    // Set up listener for system theme changes
+    if (theme === 'system') {
+      systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      systemThemeListener = () => applyTheme('system');
+      systemThemeQuery.addEventListener('change', systemThemeListener);
+    }
+
     refreshAccentStyles();
   }
 
@@ -858,12 +943,27 @@ function initOnboarding() {
     document.getElementById('tab-panels').style.display = 'none';
   }
 
+  // Gender onboarding — set data-gender immediately on selection
+  let selectedGender = settings.gender || 'girl';
+  const genderOpts = document.querySelectorAll('.gender-option');
+  genderOpts.forEach(btn => {
+    btn.addEventListener('click', () => {
+      genderOpts.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedGender = btn.dataset.obGender;
+      // Immediately apply so accent colors update right away
+      document.documentElement.setAttribute('data-gender', selectedGender);
+    });
+  });
+
   document.getElementById('btn-finish-onboarding').addEventListener('click', () => {
     const bd = document.getElementById('onboard-birth-date').value;
     const bn = document.getElementById('onboard-baby-name').value.trim();
     if (!bd) { toast('Mohon isi tanggal lahir'); return; }
     settings.birthDate = bd;
     settings.babyName = bn;
+    settings.gender = selectedGender;
+    document.documentElement.setAttribute('data-gender', selectedGender);
     save(K.settings, settings);
     overlay.classList.add('hidden');
     document.getElementById('tab-panels').style.display = '';
@@ -965,9 +1065,17 @@ function updateFloatingPlayer() {
   hideFloatingPlayer();
 }
 
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+  document.getElementById('panel-' + tab)?.classList.add('active');
+  document.dispatchEvent(new CustomEvent('tabswitch', { detail: { tab } }));
+}
+
 function checkFloatingPlayerVisibility() {
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
-  const isTimerTab = activeTab === 'feed' || activeTab === 'pumping';
+  const isTimerTab = activeTab === 'feeding' || activeTab === 'pumping';
 
   if (feedingState.running || pumpingState.running) {
     if (!isTimerTab) {
@@ -988,7 +1096,7 @@ function initFloatingPlayer() {
   // Click trigger → jump to the right tab
   document.getElementById('fp-trigger').addEventListener('click', () => {
     if (feedingState.running) {
-      switchTab('feed');
+      switchTab('feeding');
     } else if (pumpingState.running) {
       switchTab('pumping');
     }

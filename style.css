@@ -686,6 +686,23 @@ body {
 .settings-input { background: transparent; border: none; outline: none; font-family: var(--font-body); font-size: 0.875rem; color: var(--text-2); text-align: right; width: 130px; }
 .settings-input[type="date"] { width: 148px; color-scheme: light dark; }
 .settings-input::placeholder { color: var(--text-3); }
+
+/* ML Estimate Input — smaller, muted when auto-filled */
+.ml-est-input {
+  background: transparent; border: none; outline: none;
+  font-family: var(--font-mono); font-size: 1.1rem; font-weight: 600;
+  color: var(--text-3); text-align: center; width: 80px;
+  transition: color var(--dur-fast) var(--ease-out);
+  -moz-appearance: textfield;
+}
+.ml-est-input::-webkit-inner-spin-button,
+.ml-est-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.ml-est-input::placeholder { color: var(--text-3); opacity: 0.5; }
+.ml-est-input.user-edited { color: var(--accent); }
+.ml-est-input:focus { color: var(--text-1); }
+
+.ml-unit-label { font-size: 0.9rem; font-weight: 600; color: var(--text-3); transition: color var(--dur-fast) var(--ease-out); }
+.ml-unit-label.user-edited { color: var(--accent); }
 .settings-chevron { color: var(--text-3); font-size: 0.85rem; }
 .settings-row-btn { background: transparent; border: none; font-family: var(--font-body); cursor: pointer; display: flex; align-items: center; gap: var(--sp-3); text-align: left; width: 100%; }
 .btn-danger-text { color: var(--danger); font-size: 0.875rem; font-weight: 600; background: none; border: none; font-family: var(--font-body); cursor: pointer; }

@@ -121,10 +121,10 @@
         </div>
 
         <div style="margin:var(--sp-4) 0;text-align:center;">
-          <p style="font-size:0.75rem;color:var(--text-3);margin-bottom:var(--sp-2);">Hasil ML</p>
-          <div style="display:flex;align-items:center;justify-content:center;gap:var(--sp-3);">
-            <input type="number" id="pump-ml-input" class="settings-input" placeholder="0" inputmode="decimal" style="width:120px;text-align:center;font-size:2rem;font-weight:700;padding:var(--sp-3);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);">
-            <span style="font-size:1.2rem;font-weight:600;color:var(--text-2);">ml</span>
+          <p style="font-size:0.75rem;color:var(--text-3);margin-bottom:var(--sp-2);">Perkiraan ML</p>
+          <div style="display:flex;align-items:center;justify-content:center;gap:var(--sp-2);">
+            <input type="number" id="pump-ml-input" class="ml-est-input" placeholder="0" inputmode="decimal">
+            <span id="pump-ml-unit" class="ml-unit-label">ml</span>
           </div>
         </div>
 
@@ -344,6 +344,22 @@
     </div>
   </div>
 
+  <!-- EDIT PUMPING MODAL -->
+  <div id="edit-pump-modal" class="hidden" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:var(--sp-4);background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
+    <div style="background:var(--surface);border-radius:var(--r-2xl);padding:var(--sp-6);max-width:340px;width:100%;box-shadow:var(--shadow-lg);">
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:var(--sp-2);color:var(--text-1);">Edit ML</h2>
+      <p style="font-size:0.875rem;color:var(--text-2);margin-bottom:var(--sp-4);line-height:1.5;" id="edit-pump-desc">Ubah jumlah ML.</p>
+      <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-5);">
+        <input type="number" id="edit-pump-ml" class="ml-est-input" placeholder="0" inputmode="decimal" style="flex:1;">
+        <span style="font-size:0.875rem;color:var(--text-2);">ml</span>
+      </div>
+      <div style="display:flex;gap:var(--sp-3);">
+        <button id="edit-pump-save" class="btn btn-primary" style="flex:1;">Simpan</button>
+        <button id="edit-pump-cancel" class="btn btn-ghost" style="flex:1;">Batal</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ONBOARDING -->
   <div id="onboarding-overlay" class="onboarding-overlay hidden" role="dialog" aria-modal="true">
     <div class="onboarding-container">
@@ -363,6 +379,13 @@
           <div class="onboarding-field stagger-item stagger-4">
             <label class="onboarding-label" for="onboard-baby-name">Nama Bayi</label>
             <input type="text" id="onboard-baby-name" class="onboarding-input" placeholder="Panggilan bayi...">
+          </div>
+          <div class="onboarding-field stagger-item stagger-5">
+            <label class="onboarding-label">Gender Bayi</label>
+            <div class="onboarding-gender-switch">
+              <div class="gender-option selected" data-ob-gender="girl">Perempuan</div>
+              <div class="gender-option" data-ob-gender="boy">Laki-laki</div>
+            </div>
           </div>
           <button id="btn-finish-onboarding" class="btn btn-primary stagger-item stagger-6" style="width:100%;margin-top:var(--sp-5);">
             Mulai Sekarang
