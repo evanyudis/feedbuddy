@@ -903,9 +903,15 @@ function initSettings() {
     refreshAccentStyles();
   }
 
+  // Sync active state on theme segment buttons
+  ts.querySelectorAll('.segment-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.themeVal === settings.theme);
+  });
   ts.addEventListener('click', e => {
     const btn = e.target.closest('.segment-btn');
     if (!btn) return;
+    ts.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
     setTheme(btn.dataset.themeVal);
   });
   setTheme(settings.theme || 'system');
