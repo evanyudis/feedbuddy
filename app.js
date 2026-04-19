@@ -1185,6 +1185,12 @@ function updateFloatingPlayer() {
     pauseBtn.innerHTML = isPaused
       ? '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><polygon points="5,3 19,12 5,21"/></svg>'
       : '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+    // Stop button: show square icon when running, "SELESAI" text when paused
+    if (isPaused) {
+      stopBtn.innerHTML = '<span style="font-size:0.7rem;font-weight:700;letter-spacing:0.5px">SELESAI</span>';
+    } else {
+      stopBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
+    }
     // Stop → stop feeding
     stopBtn.onclick = () => { stopFeedingTimer(); hideFloatingPlayer(); };
     return;
@@ -1212,6 +1218,12 @@ function updateFloatingPlayer() {
     pauseBtn.innerHTML = isPaused
       ? '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><polygon points="5,3 19,12 5,21"/></svg>'
       : '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+    // Stop button: show square icon when running, "SELESAI" text when paused
+    if (isPaused) {
+      stopBtn.innerHTML = '<span style="font-size:0.7rem;font-weight:700;letter-spacing:0.5px">SELESAI</span>';
+    } else {
+      stopBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
+    }
     // Stop → stop pumping
     stopBtn.onclick = () => { stopPumpingTimer(); hideFloatingPlayer(); };
     return;
