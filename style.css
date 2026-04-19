@@ -448,6 +448,12 @@ body {
 .btn-icon { width: 44px; height: 44px; padding: 0; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); color: var(--text-2); }
 .btn-icon svg { width: 18px; height: 18px; }
 
+/* Timer buttons — unified height so layout never shifts */
+.timer-btn {
+  min-width: 140px; min-height: 52px; padding: 14px 24px;
+  font-size: 0.9rem; border-radius: var(--r-full);
+}
+
 @keyframes ctaPulse {
   0%, 100% { box-shadow: 0 4px 16px var(--accent-shadow); }
   50%       { box-shadow: 0 8px 28px var(--accent-shadow), 0 0 0 6px oklch(from var(--accent) l c h / 0.10); }
@@ -817,9 +823,10 @@ body {
 .segment-btn {
   flex: 1; padding: 8px; border: none; background: transparent;
   color: var(--text-2); font-size: 0.82rem; font-weight: 500;
-  border-radius: var(--r-sm); cursor: pointer;
+  border-radius: var(--r-full); cursor: pointer;
   transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
+  /* No border override — pill shape comes from r-full + container overflow:hidden */
 }
 .segment-btn.active {
   background: var(--surface); color: var(--text-1);

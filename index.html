@@ -65,16 +65,16 @@
         <p class="timer-subtitle" id="feeding-subtitle">Pilih sisi dan mulai</p>
 
         <div class="segmented-control" id="side-picker" style="margin:var(--sp-4) auto;max-width:280px;display:flex;border:1px solid var(--border);border-radius:var(--r-full);overflow:hidden;background:var(--bg-grouped);">
-          <button class="segment-btn active" data-side="left" style="flex:1;border-radius:0;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.875rem;">Kiri</button>
-          <button class="segment-btn" data-side="right" style="flex:1;border-radius:0;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.875rem;">Kanan</button>
+          <button class="segment-btn active" data-side="left" style="flex:1;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.875rem;">Kiri</button>
+          <button class="segment-btn" data-side="right" style="flex:1;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.875rem;">Kanan</button>
         </div>
 
         <div class="timer-display" id="feeding-display">00:00</div>
         <div class="timer-controls">
-          <button id="btn-feeding-jeda" class="btn btn-primary pulse-anim" style="display:none;"><span id="btn-feeding-jeda-text">JEDA</span></button>
-          <button id="btn-feeding-selesai" class="btn btn-secondary" style="display:none;">SELESAI</button>
-          <button id="btn-feeding-reset" class="btn btn-ghost" style="display:none;">Reset</button>
-          <button id="btn-feeding-toggle" class="btn btn-primary pulse-anim"><span id="btn-feeding-text">MULAI</span></button>
+          <button id="btn-feeding-jeda" class="btn btn-primary pulse-anim timer-btn" style="display:none;"><span id="btn-feeding-jeda-text">JEDA</span></button>
+          <button id="btn-feeding-selesai" class="btn btn-secondary timer-btn" style="display:none;">SELESAI</button>
+          <button id="btn-feeding-reset" class="btn btn-ghost timer-btn" style="display:none;">Reset</button>
+          <button id="btn-feeding-toggle" class="btn btn-primary pulse-anim timer-btn"><span id="btn-feeding-text">MULAI</span></button>
         </div>
       </div>
 
@@ -117,9 +117,9 @@
         <p class="timer-subtitle" id="pumping-subtitle">Catat hasil pumping</p>
 
         <div class="segmented-control" id="pump-side-picker" style="margin:var(--sp-4) auto;max-width:320px;display:flex;border:1px solid var(--border);border-radius:var(--r-full);overflow:hidden;background:var(--bg-grouped);">
-          <button class="segment-btn active" data-pump-side="left" style="flex:1;border-radius:0;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.8rem;">Kiri</button>
-          <button class="segment-btn" data-pump-side="right" style="flex:1;border-radius:0;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.8rem;">Kanan</button>
-          <button class="segment-btn" data-pump-side="both" style="flex:1;border-radius:0;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.8rem;">Kedua</button>
+          <button class="segment-btn active" data-pump-side="left" style="flex:1;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.8rem;">Kiri</button>
+          <button class="segment-btn" data-pump-side="right" style="flex:1;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.8rem;">Kanan</button>
+          <button class="segment-btn" data-pump-side="both" style="flex:1;border:none;background:transparent;color:var(--text-2);padding:var(--sp-3) var(--sp-4);font-size:0.8rem;">Kedua</button>
         </div>
 
         <div style="margin:var(--sp-4) 0;text-align:center;">
@@ -132,9 +132,9 @@
 
         <div class="timer-display" id="pumping-display">00:00</div>
         <div class="timer-controls">
-          <button id="btn-pumping-jeda" class="btn btn-primary pulse-anim" style="display:none;"><span id="btn-pumping-jeda-text">JEDA</span></button>
-          <button id="btn-pumping-selesai" class="btn btn-secondary" style="display:none;">SELESAI</button>
-          <button id="btn-pumping-toggle" class="btn btn-primary pulse-anim"><span id="btn-pumping-text">MULAI</span></button>
+          <button id="btn-pumping-jeda" class="btn btn-primary pulse-anim timer-btn" style="display:none;"><span id="btn-pumping-jeda-text">JEDA</span></button>
+          <button id="btn-pumping-selesai" class="btn btn-secondary timer-btn" style="display:none;">SELESAI</button>
+          <button id="btn-pumping-toggle" class="btn btn-primary pulse-anim timer-btn"><span id="btn-pumping-text">MULAI</span></button>
         </div>
       </div>
 
