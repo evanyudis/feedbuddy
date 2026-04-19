@@ -238,8 +238,10 @@ function startFeedingTimer(sideOverride) {
   feedingState.paused = false;
   feedingState.pausedAt = null;
   document.getElementById('feeding-display').textContent = '00:00';
-  document.getElementById('btn-feeding-text').textContent = 'JEDA';
-  document.getElementById('btn-feeding-reset').style.display = '';
+  document.getElementById('btn-feeding-toggle').style.display = 'none';
+  document.getElementById('btn-feeding-jeda').style.display = '';
+  document.getElementById('btn-feeding-selesai').style.display = '';
+  document.getElementById('btn-feeding-reset').style.display = 'none';
   document.getElementById('feeding-subtitle').textContent = `Menyusui ${side === 'left' ? 'KIRI' : 'KANAN'}`;
   if (feedingInterval) clearInterval(feedingInterval);
   feedingInterval = setInterval(updateFeedingDisplay, 1000);
@@ -251,18 +253,19 @@ function pauseFeedingTimer() {
   feedingInterval = null;
   feedingState.paused = true;
   feedingState.pausedAt = Date.now();
-  document.getElementById('btn-feeding-text').textContent = 'LANJUT';
+  document.getElementById('btn-feeding-jeda-text').textContent = 'LANJUT';
+  document.getElementById('btn-feeding-reset').style.display = '';
   document.getElementById('feeding-subtitle').textContent = `Jeda — ${formatDur(feedingState.elapsed)}`;
 }
 
 function resumeFeedingTimer() {
   if (!feedingState.running || !feedingState.paused) return;
-  // Adjust startTime to account for the paused duration
   const pausedDur = Date.now() - feedingState.pausedAt;
   feedingState.startTime += pausedDur;
   feedingState.paused = false;
   feedingState.pausedAt = null;
-  document.getElementById('btn-feeding-text').textContent = 'JEDA';
+  document.getElementById('btn-feeding-jeda-text').textContent = 'JEDA';
+  document.getElementById('btn-feeding-reset').style.display = 'none';
   const side = feedingState.side === 'left' ? 'KIRI' : 'KANAN';
   document.getElementById('feeding-subtitle').textContent = `Menyusui ${side}`;
   if (feedingInterval) clearInterval(feedingInterval);
@@ -289,7 +292,11 @@ function stopFeedingTimer() {
   });
   save(K.bfSessions, bfSessions);
 
-  document.getElementById('btn-feeding-text').textContent = 'MULAI';
+  document.getElementById('btn-feeding-toggle').style.display = '';
+  document.getElementById('btn-feeding-toggle').querySelector('span').textContent = 'MULAI';
+  document.getElementById('btn-feeding-jeda').style.display = 'none';
+  document.getElementById('btn-feeding-selesai').style.display = 'none';
+  document.getElementById('btn-feeding-reset').style.display = 'none';
   document.getElementById('feeding-subtitle').textContent = 'Sesi selesai — ' + formatMin(duration);
   feedingState.elapsed = 0;
   feedingState.paused = false;
@@ -306,9 +313,12 @@ function resetFeedingTimer() {
   feedingState.elapsed = 0;
   feedingState.paused = false;
   feedingState.pausedAt = null;
-  document.getElementById('btn-feeding-text').textContent = 'MULAI';
-  document.getElementById('feeding-display').textContent = '00:00';
+  document.getElementById('btn-feeding-toggle').style.display = '';
+  document.getElementById('btn-feeding-toggle').querySelector('span').textContent = 'MULAI';
+  document.getElementById('btn-feeding-jeda').style.display = 'none';
+  document.getElementById('btn-feeding-selesai').style.display = 'none';
   document.getElementById('btn-feeding-reset').style.display = 'none';
+  document.getElementById('feeding-display').textContent = '00:00';
   document.getElementById('feeding-subtitle').textContent = 'Pilih sisi dan mulai';
 }
 
@@ -462,6 +472,17 @@ function initFeeding() {
   });
 
   document.getElementById('btn-feeding-toggle').addEventListener('click', handleFeedingToggle);
+  document.getElementById('btn-feeding-jeda').addEventListener('click', () => {
+    if (feedingState.paused) {
+      resumeFeedingTimer();
+    } else {
+      pauseFeedingTimer();
+    }
+  });
+  document.getElementById('btn-feeding-selesai').addEventListener('click', () => {
+    stopFeedingTimer();
+    checkFloatingPlayerVisibility();
+  });
   document.getElementById('btn-feeding-reset').addEventListener('click', resetFeedingTimer);
   document.getElementById('btn-clear-feeding').addEventListener('click', () => {
     if (confirm('Hapus semua riwayat menyusui?')) {
@@ -630,10 +651,13 @@ function startPumpingTimer() {
   pumpingState.pausedAt = null;
   document.getElementById('pumping-display').textContent = '00:00';
   document.getElementById('pump-ml-input').value = '';
-  document.getElementById('pump-ml-input').classList.remove('user-edited');
-  document.getElementById('pump-ml-unit').classList.remove('user-edited');
-  document.getElementById('btn-pumping-text').textContent = 'JEDA';
-  document.getElementById('btn-pumping-save').style.display = 'none';
+  document.getElementById('pump-ml-input').classList.remove('user-edited', 'auto-est');
+  document.getElementById('pump-ml-unit').classList.remove('user-edited', 'auto-est');
+  document.getElementById('pump-ml-unit').textContent = 'ml';
+  document.getElementById('btn-pumping-toggle').style.display = 'none';
+  document.getElementById('btn-pumping-jeda').style.display = '';
+  document.getElementById('btn-pumping-jeda').querySelector('span').textContent = 'JEDA';
+  document.getElementById('btn-pumping-selesai').style.display = '';
   document.getElementById('pumping-subtitle').textContent = 'Pumping berjalan...';
   if (pumpingInterval) clearInterval(pumpingInterval);
   pumpingInterval = setInterval(updatePumpingDisplay, 1000);
@@ -646,9 +670,11 @@ function stopPumpingTimer() {
   pumpingState.running = false;
   pumpingState.paused = false;
   pumpingState.pausedAt = null;
-  document.getElementById('btn-pumping-text').textContent = 'MULAI';
+  document.getElementById('btn-pumping-toggle').style.display = '';
+  document.getElementById('btn-pumping-toggle').querySelector('span').textContent = 'MULAI';
+  document.getElementById('btn-pumping-jeda').style.display = 'none';
+  document.getElementById('btn-pumping-selesai').style.display = 'none';
   document.getElementById('pumping-subtitle').textContent = 'Sesi selesai';
-  document.getElementById('btn-pumping-save').style.display = '';
 }
 
 function pausePumpingTimer() {
@@ -657,7 +683,7 @@ function pausePumpingTimer() {
   pumpingInterval = null;
   pumpingState.paused = true;
   pumpingState.pausedAt = Date.now();
-  document.getElementById('btn-pumping-text').textContent = 'LANJUT';
+  document.getElementById('btn-pumping-jeda').querySelector('span').textContent = 'LANJUT';
   document.getElementById('pumping-subtitle').textContent = `Jeda — ${formatDur(pumpingState.elapsed)}`;
 }
 
@@ -667,7 +693,7 @@ function resumePumpingTimer() {
   pumpingState.startTime += pausedDur;
   pumpingState.paused = false;
   pumpingState.pausedAt = null;
-  document.getElementById('btn-pumping-text').textContent = 'JEDA';
+  document.getElementById('btn-pumping-jeda').querySelector('span').textContent = 'JEDA';
   document.getElementById('pumping-subtitle').textContent = 'Pumping berjalan...';
   if (pumpingInterval) clearInterval(pumpingInterval);
   pumpingInterval = setInterval(updatePumpingDisplay, 1000);
@@ -765,7 +791,23 @@ function initPumping() {
     }
   });
 
-  document.getElementById('btn-pumping-save').addEventListener('click', savePumpingSession);
+  document.getElementById('btn-pumping-jeda').addEventListener('click', () => {
+    if (pumpingState.paused) {
+      resumePumpingTimer();
+    } else {
+      pausePumpingTimer();
+    }
+  });
+
+  document.getElementById('btn-pumping-selesai').addEventListener('click', () => {
+    stopPumpingTimer();
+    checkFloatingPlayerVisibility();
+  });
+
+  document.getElementById('btn-pumping-save').addEventListener('click', () => {
+    savePumpingSession();
+    checkFloatingPlayerVisibility();
+  });
 
   document.getElementById('btn-clear-pumping').addEventListener('click', () => {
     if (confirm('Hapus semua riwayat pumping?')) {
@@ -1243,19 +1285,18 @@ function switchTab(tab) {
 
 function checkFloatingPlayerVisibility() {
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
-  const isTimerTab = activeTab === 'feeding' || activeTab === 'pumping';
 
-  if (feedingState.running || pumpingState.running) {
-    if (!isTimerTab) {
-      // Timer running but user NOT on timer tab → show bar
-      if (!fpInterval) fpInterval = setInterval(updateFloatingPlayer, 1000);
-      updateFloatingPlayer();
-      showFloatingPlayer();
-    } else {
-      // On the timer tab → hide bar
-      hideFloatingPlayer();
-    }
+  // Determine which timer (if any) should show the bar
+  const feedingActive = feedingState.running && activeTab !== 'feeding';
+  const pumpingActive = pumpingState.running && activeTab !== 'pumping';
+
+  if (feedingActive || pumpingActive) {
+    // Show bar if: running timer != active tab
+    if (!fpInterval) fpInterval = setInterval(updateFloatingPlayer, 1000);
+    updateFloatingPlayer();
+    showFloatingPlayer();
   } else {
+    // Hide bar if: no timer running OR running timer == active tab
     hideFloatingPlayer(false);
   }
 }

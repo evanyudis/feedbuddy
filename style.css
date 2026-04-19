@@ -442,6 +442,7 @@ body {
 .btn-primary:active { opacity: 0.88; box-shadow: 0 2px 8px var(--accent-shadow); }
 .btn-primary.recording { background: var(--danger); box-shadow: 0 4px 16px oklch(from var(--danger) l c h / 0.28); animation: none; }
 .btn-ghost { padding: var(--sp-2) var(--sp-4); background: transparent; color: var(--text-2); font-size: 0.82rem; border: 1px solid var(--border); }
+.btn-secondary { padding: 14px 28px; background: var(--surface); color: var(--text-1); font-size: 0.9rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
 .btn-glass { padding: var(--sp-3) var(--sp-5); background: var(--surface); border: 1px solid var(--border); color: var(--text-1); font-size: 0.875rem; box-shadow: var(--shadow-xs); }
 .btn-sm { padding: 8px var(--sp-3); font-size: 0.78rem; min-height: 44px; }
 .btn-icon { width: 44px; height: 44px; padding: 0; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); color: var(--text-2); }
@@ -816,7 +817,7 @@ body {
 .segment-btn {
   flex: 1; padding: 8px; border: none; background: transparent;
   color: var(--text-2); font-size: 0.82rem; font-weight: 500;
-  border-radius: var(--r-md); cursor: pointer;
+  border-radius: var(--r-sm); cursor: pointer;
   transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
