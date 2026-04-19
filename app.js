@@ -880,7 +880,7 @@ function initOnboarding() {
 function injectStyles() {
   const s = document.createElement('style');
   s.textContent = `
-#toast-container{position:fixed;top:calc(60px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:calc(100% - 32px);max-width:380px}
+#toast-container{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px) + var(--sp-4));left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:calc(100% - 32px);max-width:380px}
 .toast{background:var(--text-1);color:var(--text-inv);padding:10px 18px;border-radius:var(--r-full);font-size:0.875rem;font-weight:500;box-shadow:var(--shadow-md);opacity:0;transform:translateY(-8px);transition:opacity 200ms,transform 200ms;pointer-events:auto;text-align:center;width:100%}
 .toast.show{opacity:1;transform:translateY(0)}
 .log-item{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-subtle)}
