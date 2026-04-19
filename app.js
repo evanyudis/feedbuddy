@@ -39,7 +39,7 @@ function applyTheme(val) {
   let effective = val === 'system' || !val
     ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     : val;
-  document.body.setAttribute('data-theme', effective);
+  document.documentElement.setAttribute('data-theme', effective);
 }
 function initTheme() {
   applyTheme(settings.theme);
@@ -819,6 +819,25 @@ function initDiaper() {
 }
 
 // ============================================================
+// ACCENT STYLES REFRESHER (global for reuse)
+// ============================================================
+function refreshAccentStyles() {
+  document.querySelectorAll('.segment-btn').forEach(b => {
+    if (b.classList.contains('active')) {
+      b.style.background = 'var(--accent)';
+      b.style.color = 'var(--text-inv)';
+    } else {
+      b.style.background = 'transparent';
+      b.style.color = 'var(--text-2)';
+    }
+  });
+  const logoIcon = document.querySelector('.logo-icon');
+  if (logoIcon) logoIcon.style.color = 'var(--accent)';
+  const logoText = document.querySelector('.logo-text span');
+  if (logoText) logoText.style.color = 'var(--accent)';
+}
+
+// ============================================================
 // SETTINGS
 // ============================================================
 function initSettings() {
@@ -882,22 +901,6 @@ function initSettings() {
     }
 
     refreshAccentStyles();
-  }
-
-  function refreshAccentStyles() {
-    document.querySelectorAll('.segment-btn').forEach(b => {
-      if (b.classList.contains('active')) {
-        b.style.background = 'var(--accent)';
-        b.style.color = 'var(--text-inv)';
-      } else {
-        b.style.background = 'transparent';
-        b.style.color = 'var(--text-2)';
-      }
-    });
-    const logoIcon = document.querySelector('.logo-icon');
-    if (logoIcon) logoIcon.style.color = 'var(--accent)';
-    const logoText = document.querySelector('.logo-text span');
-    if (logoText) logoText.style.color = 'var(--accent)';
   }
 
   ts.addEventListener('click', e => {
@@ -987,8 +990,11 @@ function initOnboarding() {
     document.getElementById('tab-panels').style.display = '';
     document.getElementById('setting-birth-date').value = bd;
     document.getElementById('setting-baby-name').value = bn;
+    document.getElementById('setting-gender').value = selectedGender;
     document.getElementById('ui-baby-name').textContent = bn || 'Baby';
     renderFeedingSchedule();
+    // Re-apply accent styles after onboarding gender is set
+    refreshAccentStyles();
   });
 }
 

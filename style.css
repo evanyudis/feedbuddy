@@ -700,11 +700,11 @@ body {
 .ml-est-input::placeholder { color: var(--text-3); opacity: 0.5; }
 .ml-est-input.user-edited { color: var(--accent); font-weight: 700; }
 .ml-est-input:focus { color: var(--text-1); }
-.ml-est-input.auto-est { color: var(--teal); opacity: 0.75; }
+.ml-est-input.auto-est { color: var(--text-3); opacity: 0.55; }
 
 .ml-unit-label { font-size: 0.9rem; font-weight: 600; color: var(--text-3); transition: color var(--dur-fast) var(--ease-out); }
 .ml-unit-label.user-edited { color: var(--accent); }
-.ml-unit-label.auto-est { color: var(--teal); opacity: 0.75; }
+.ml-unit-label.auto-est { color: var(--text-3); opacity: 0.55; }
 .settings-chevron { color: var(--text-3); font-size: 0.85rem; }
 .settings-row-btn { background: transparent; border: none; font-family: var(--font-body); cursor: pointer; display: flex; align-items: center; gap: var(--sp-3); text-align: left; width: 100%; }
 .btn-danger-text { color: var(--danger); font-size: 0.875rem; font-weight: 600; background: none; border: none; font-family: var(--font-body); cursor: pointer; }
@@ -765,6 +765,7 @@ body {
   width: 100%; background: var(--surface); border: 1px solid var(--border);
   padding: 14px var(--sp-4); border-radius: var(--r-lg); font-family: var(--font-body);
   font-size: 1rem; color: var(--text-1); transition: border-color var(--dur-fast), box-shadow var(--dur-fast); outline: none;
+  color-scheme: light dark;
 }
 .onboarding-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px oklch(from var(--accent) l c h / 0.15); }
 .onboarding-input::placeholder { color: var(--text-3); }
@@ -855,7 +856,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-full);
-  padding: 6px 10px 6px 6px;
+  padding: 10px 14px 10px 10px;
   box-shadow: 0 4px 24px oklch(0% 0 0 / 0.20), 0 0 0 1px oklch(0% 0 0 / 0.05);
   max-width: calc(100vw - 48px);
   animation: fpSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -900,17 +901,17 @@ body {
 
 .fp-label {
   font-family: var(--font-display);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 80px;
+  max-width: 90px;
 }
 
 .fp-timer {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--accent);
   white-space: nowrap;
@@ -927,8 +928,8 @@ body {
 }
 
 .fp-btn {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--r-full);
   background: var(--bg-grouped);
   border: none;
