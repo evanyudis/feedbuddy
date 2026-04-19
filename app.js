@@ -131,7 +131,7 @@ function feedingIntervalHours() {
 // ============================================================
 // FEEDING TAB
 // ============================================================
-let feedingState = { running: false, startTime: null, side: 'left', elapsed: 0 };
+let feedingState = { running: false, startTime: null, side: 'left', elapsed: 0, paused: false, pausedAt: null };
 let feedingInterval = null;
 let pendingCombine = null; // { newSide, resolve }
 
@@ -221,7 +221,11 @@ function renderBFSessions() {
 
 function updateFeedingDisplay() {
   if (!feedingState.running) return;
-  feedingState.elapsed = Date.now() - feedingState.startTime;
+  if (feedingState.paused) {
+    feedingState.elapsed = feedingState.pausedAt - feedingState.startTime;
+  } else {
+    feedingState.elapsed = Date.now() - feedingState.startTime;
+  }
   document.getElementById('feeding-display').textContent = formatDur(feedingState.elapsed);
 }
 
@@ -231,10 +235,36 @@ function startFeedingTimer(sideOverride) {
   feedingState.startTime = Date.now();
   feedingState.side = side;
   feedingState.elapsed = 0;
+  feedingState.paused = false;
+  feedingState.pausedAt = null;
   document.getElementById('feeding-display').textContent = '00:00';
-  document.getElementById('btn-feeding-text').textContent = 'BERHENTI';
+  document.getElementById('btn-feeding-text').textContent = 'JEDA';
   document.getElementById('btn-feeding-reset').style.display = '';
   document.getElementById('feeding-subtitle').textContent = `Menyusui ${side === 'left' ? 'KIRI' : 'KANAN'}`;
+  if (feedingInterval) clearInterval(feedingInterval);
+  feedingInterval = setInterval(updateFeedingDisplay, 1000);
+}
+
+function pauseFeedingTimer() {
+  if (!feedingState.running || feedingState.paused) return;
+  clearInterval(feedingInterval);
+  feedingInterval = null;
+  feedingState.paused = true;
+  feedingState.pausedAt = Date.now();
+  document.getElementById('btn-feeding-text').textContent = 'LANJUT';
+  document.getElementById('feeding-subtitle').textContent = `Jeda — ${formatDur(feedingState.elapsed)}`;
+}
+
+function resumeFeedingTimer() {
+  if (!feedingState.running || !feedingState.paused) return;
+  // Adjust startTime to account for the paused duration
+  const pausedDur = Date.now() - feedingState.pausedAt;
+  feedingState.startTime += pausedDur;
+  feedingState.paused = false;
+  feedingState.pausedAt = null;
+  document.getElementById('btn-feeding-text').textContent = 'JEDA';
+  const side = feedingState.side === 'left' ? 'KIRI' : 'KANAN';
+  document.getElementById('feeding-subtitle').textContent = `Menyusui ${side}`;
   if (feedingInterval) clearInterval(feedingInterval);
   feedingInterval = setInterval(updateFeedingDisplay, 1000);
 }
@@ -244,13 +274,15 @@ function stopFeedingTimer() {
   clearInterval(feedingInterval);
   feedingInterval = null;
   const end = Date.now();
-  const duration = end - feedingState.startTime;
+  // If paused, use pausedAt as the end time
+  const endTime = feedingState.paused ? feedingState.pausedAt : end;
+  const duration = endTime - feedingState.startTime;
   feedingState.running = false;
 
   bfSessions.push({
     id: uid(),
     start: new Date(feedingState.startTime).toISOString(),
-    end: new Date(end).toISOString(),
+    end: new Date(endTime).toISOString(),
     duration,
     side: feedingState.side,
     combinedWith: null,
@@ -260,6 +292,8 @@ function stopFeedingTimer() {
   document.getElementById('btn-feeding-text').textContent = 'MULAI';
   document.getElementById('feeding-subtitle').textContent = 'Sesi selesai — ' + formatMin(duration);
   feedingState.elapsed = 0;
+  feedingState.paused = false;
+  feedingState.pausedAt = null;
   renderBFStats();
   renderBFSessions();
   renderFeedingSchedule();
@@ -270,6 +304,8 @@ function resetFeedingTimer() {
   feedingInterval = null;
   feedingState.running = false;
   feedingState.elapsed = 0;
+  feedingState.paused = false;
+  feedingState.pausedAt = null;
   document.getElementById('btn-feeding-text').textContent = 'MULAI';
   document.getElementById('feeding-display').textContent = '00:00';
   document.getElementById('btn-feeding-reset').style.display = 'none';
@@ -312,7 +348,11 @@ function combineSessions(prevId, newId) {
 
 function handleFeedingToggle() {
   if (feedingState.running) {
-    stopFeedingTimer();
+    if (feedingState.paused) {
+      resumeFeedingTimer();
+    } else {
+      pauseFeedingTimer();
+    }
     return;
   }
 
@@ -507,7 +547,7 @@ function initSchedule() {
 // ============================================================
 // PUMPING TAB
 // ============================================================
-let pumpingState = { running: false, startTime: null, side: 'left', elapsed: 0, mlUserEdited: false };
+let pumpingState = { running: false, startTime: null, side: 'left', elapsed: 0, mlUserEdited: false, paused: false, pausedAt: null };
 let pumpingInterval = null;
 
 function getTodayPumping() { return pumpingLog.filter(p => isToday(p.timestamp)); }
@@ -563,7 +603,11 @@ const PUMPING_ML_PER_MINUTE = 30; // avg pumping rate ml/min
 
 function updatePumpingDisplay() {
   if (!pumpingState.running) return;
-  pumpingState.elapsed = Date.now() - pumpingState.startTime;
+  if (pumpingState.paused) {
+    pumpingState.elapsed = pumpingState.pausedAt - pumpingState.startTime;
+  } else {
+    pumpingState.elapsed = Date.now() - pumpingState.startTime;
+  }
   document.getElementById('pumping-display').textContent = formatDur(pumpingState.elapsed);
 
   // Auto-estimate ML while timer runs — only if user hasn't manually edited
@@ -582,11 +626,13 @@ function startPumpingTimer() {
   pumpingState.startTime = Date.now();
   pumpingState.elapsed = 0;
   pumpingState.mlUserEdited = false;
+  pumpingState.paused = false;
+  pumpingState.pausedAt = null;
   document.getElementById('pumping-display').textContent = '00:00';
   document.getElementById('pump-ml-input').value = '';
   document.getElementById('pump-ml-input').classList.remove('user-edited');
   document.getElementById('pump-ml-unit').classList.remove('user-edited');
-  document.getElementById('btn-pumping-text').textContent = 'BERHENTI';
+  document.getElementById('btn-pumping-text').textContent = 'JEDA';
   document.getElementById('btn-pumping-save').style.display = 'none';
   document.getElementById('pumping-subtitle').textContent = 'Pumping berjalan...';
   if (pumpingInterval) clearInterval(pumpingInterval);
@@ -598,9 +644,33 @@ function stopPumpingTimer() {
   clearInterval(pumpingInterval);
   pumpingInterval = null;
   pumpingState.running = false;
+  pumpingState.paused = false;
+  pumpingState.pausedAt = null;
   document.getElementById('btn-pumping-text').textContent = 'MULAI';
   document.getElementById('pumping-subtitle').textContent = 'Sesi selesai';
   document.getElementById('btn-pumping-save').style.display = '';
+}
+
+function pausePumpingTimer() {
+  if (!pumpingState.running || pumpingState.paused) return;
+  clearInterval(pumpingInterval);
+  pumpingInterval = null;
+  pumpingState.paused = true;
+  pumpingState.pausedAt = Date.now();
+  document.getElementById('btn-pumping-text').textContent = 'LANJUT';
+  document.getElementById('pumping-subtitle').textContent = `Jeda — ${formatDur(pumpingState.elapsed)}`;
+}
+
+function resumePumpingTimer() {
+  if (!pumpingState.running || !pumpingState.paused) return;
+  const pausedDur = Date.now() - pumpingState.pausedAt;
+  pumpingState.startTime += pausedDur;
+  pumpingState.paused = false;
+  pumpingState.pausedAt = null;
+  document.getElementById('btn-pumping-text').textContent = 'JEDA';
+  document.getElementById('pumping-subtitle').textContent = 'Pumping berjalan...';
+  if (pumpingInterval) clearInterval(pumpingInterval);
+  pumpingInterval = setInterval(updatePumpingDisplay, 1000);
 }
 
 function savePumpingSession() {
@@ -685,7 +755,11 @@ function initPumping() {
 
   document.getElementById('btn-pumping-toggle').addEventListener('click', () => {
     if (pumpingState.running) {
-      stopPumpingTimer();
+      if (pumpingState.paused) {
+        resumePumpingTimer();
+      } else {
+        pausePumpingTimer();
+      }
     } else {
       startPumpingTimer();
     }
@@ -1090,27 +1164,55 @@ function updateFloatingPlayer() {
 
   // Detect which timer is running
   if (feedingState.running) {
-    const elapsed = Date.now() - feedingState.startTime;
+    const isPaused = feedingState.paused;
+    const elapsed = isPaused ? (feedingState.pausedAt - feedingState.startTime) : (Date.now() - feedingState.startTime);
     const side = feedingState.side === 'left' ? 'Kiri' : 'Kanan';
-    labelEl.textContent = `Menyusu ${side}`;
+    labelEl.textContent = isPaused ? `Jeda ${side}` : `Menyusu ${side}`;
     timerEl.textContent = formatDur(elapsed);
     // Icon: heart
     iconSvg.innerHTML = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>';
-    // Pause → pause feeding
-    pauseBtn.onclick = () => { stopFeedingTimer(); hideFloatingPlayer(); };
+    // Pause button → toggle pause/resume
+    pauseBtn.onclick = () => {
+      if (feedingState.paused) {
+        resumeFeedingTimer();
+        updateFloatingPlayer();
+      } else {
+        pauseFeedingTimer();
+        updateFloatingPlayer();
+      }
+    };
+    // Pause icon: show ▶ if paused, ⏸ if running
+    pauseBtn.innerHTML = isPaused
+      ? '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><polygon points="5,3 19,12 5,21"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
     // Stop → stop feeding
     stopBtn.onclick = () => { stopFeedingTimer(); hideFloatingPlayer(); };
     return;
   }
 
   if (pumpingState.running) {
-    const elapsed = Date.now() - pumpingState.startTime;
+    const isPaused = pumpingState.paused;
+    const elapsed = isPaused ? (pumpingState.pausedAt - pumpingState.startTime) : (Date.now() - pumpingState.startTime);
     const sideLabels = { left: 'Kiri', right: 'Kanan', both: 'Kedua' };
-    labelEl.textContent = `Pumping ${sideLabels[pumpingState.side] || ''}`;
+    labelEl.textContent = isPaused ? `Jeda ${sideLabels[pumpingState.side] || ''}` : `Pumping ${sideLabels[pumpingState.side] || ''}`;
     timerEl.textContent = formatDur(elapsed);
     // Icon: cube
     iconSvg.innerHTML = '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>';
-    pauseBtn.onclick = () => { stopPumpingTimer(); hideFloatingPlayer(); };
+    // Pause button → toggle pause/resume
+    pauseBtn.onclick = () => {
+      if (pumpingState.paused) {
+        resumePumpingTimer();
+        updateFloatingPlayer();
+      } else {
+        pausePumpingTimer();
+        updateFloatingPlayer();
+      }
+    };
+    // Pause icon: show ▶ if paused, ⏸ if running
+    pauseBtn.innerHTML = isPaused
+      ? '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><polygon points="5,3 19,12 5,21"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+    // Stop → stop pumping
     stopBtn.onclick = () => { stopPumpingTimer(); hideFloatingPlayer(); };
     return;
   }
