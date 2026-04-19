@@ -559,17 +559,33 @@ function renderPumpingSessions() {
   });
 }
 
+const PUMPING_ML_PER_MINUTE = 30; // avg pumping rate ml/min
+
 function updatePumpingDisplay() {
   if (!pumpingState.running) return;
   pumpingState.elapsed = Date.now() - pumpingState.startTime;
   document.getElementById('pumping-display').textContent = formatDur(pumpingState.elapsed);
+
+  // Auto-estimate ML while timer runs — only if user hasn't manually edited
+  if (!pumpingState.mlUserEdited) {
+    const estMl = Math.round(pumpingState.elapsed / 60000 * PUMPING_ML_PER_MINUTE);
+    const mlInput = document.getElementById('pump-ml-input');
+    const mlUnit = document.getElementById('pump-ml-unit');
+    mlInput.value = estMl;
+    mlInput.classList.add('auto-est');
+    mlUnit.classList.add('auto-est');
+  }
 }
 
 function startPumpingTimer() {
   pumpingState.running = true;
   pumpingState.startTime = Date.now();
   pumpingState.elapsed = 0;
+  pumpingState.mlUserEdited = false;
   document.getElementById('pumping-display').textContent = '00:00';
+  document.getElementById('pump-ml-input').value = '';
+  document.getElementById('pump-ml-input').classList.remove('user-edited');
+  document.getElementById('pump-ml-unit').classList.remove('user-edited');
   document.getElementById('btn-pumping-text').textContent = 'BERHENTI';
   document.getElementById('btn-pumping-save').style.display = 'none';
   document.getElementById('pumping-subtitle').textContent = 'Pumping berjalan...';
@@ -694,7 +710,9 @@ function initPumping() {
     if (mlInput.value && mlInput.value !== '') {
       pumpingState.mlUserEdited = true;
       mlInput.classList.add('user-edited');
+      mlInput.classList.remove('auto-est');
       mlUnit.classList.add('user-edited');
+      mlUnit.classList.remove('auto-est');
     } else {
       pumpingState.mlUserEdited = false;
       mlInput.classList.remove('user-edited');
@@ -1001,25 +1019,49 @@ function injectStyles() {
 // FLOATING PLAYER BAR — Spotify-style Now Playing
 // ============================================================
 let fpInterval = null;
+let fpHideTimeout = null; // Track pending hide timeout to prevent race conditions
 
 function showFloatingPlayer() {
   const el = document.getElementById('floating-player');
-  if (!el || el.classList.contains('hiding')) {
+  if (!el) return;
+
+  // Cancel any pending hide timeout to prevent race condition
+  // where setTimeout from hideFloatingPlayer fires after show
+  if (fpHideTimeout) {
+    clearTimeout(fpHideTimeout);
+    fpHideTimeout = null;
+  }
+
+  // Always ensure display is restored (handles .hidden class)
+  el.style.display = 'flex';
+
+  if (el.classList.contains('hiding')) {
     el.classList.remove('hidden', 'hiding');
     el.style.animation = 'none';
     el.offsetHeight; // reflow
     el.style.animation = '';
+  } else {
+    // No hiding class — just remove hidden if present
+    el.classList.remove('hidden');
   }
 }
 
 function hideFloatingPlayer(animate = true) {
   const el = document.getElementById('floating-player');
   if (!el) return;
+
+  // Cancel any pending hide timeout
+  if (fpHideTimeout) {
+    clearTimeout(fpHideTimeout);
+    fpHideTimeout = null;
+  }
+
   if (animate) {
     el.classList.add('hiding');
-    setTimeout(() => {
+    fpHideTimeout = setTimeout(() => {
       el.classList.add('hidden');
       el.classList.remove('hiding');
+      fpHideTimeout = null;
     }, 250);
   } else {
     el.classList.add('hidden');
@@ -1122,8 +1164,8 @@ function init() {
   initSchedule();
   initPumping();
   initDiaper();
-  initSettings();
   initOnboarding();
+  initSettings();
 }
 
 document.addEventListener('DOMContentLoaded', init);

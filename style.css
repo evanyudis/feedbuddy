@@ -698,11 +698,13 @@ body {
 .ml-est-input::-webkit-inner-spin-button,
 .ml-est-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .ml-est-input::placeholder { color: var(--text-3); opacity: 0.5; }
-.ml-est-input.user-edited { color: var(--accent); }
+.ml-est-input.user-edited { color: var(--accent); font-weight: 700; }
 .ml-est-input:focus { color: var(--text-1); }
+.ml-est-input.auto-est { color: var(--teal); opacity: 0.75; }
 
 .ml-unit-label { font-size: 0.9rem; font-weight: 600; color: var(--text-3); transition: color var(--dur-fast) var(--ease-out); }
 .ml-unit-label.user-edited { color: var(--accent); }
+.ml-unit-label.auto-est { color: var(--teal); opacity: 0.75; }
 .settings-chevron { color: var(--text-3); font-size: 0.85rem; }
 .settings-row-btn { background: transparent; border: none; font-family: var(--font-body); cursor: pointer; display: flex; align-items: center; gap: var(--sp-3); text-align: left; width: 100%; }
 .btn-danger-text { color: var(--danger); font-size: 0.875rem; font-weight: 600; background: none; border: none; font-family: var(--font-body); cursor: pointer; }
