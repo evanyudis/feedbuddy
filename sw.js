@@ -1,7 +1,7 @@
 /* ===================================================
-   Bumpbuddy — Service Worker v3 (Rebranded)
+   FeedBuddy — Service Worker v1
    =================================================== */
-const CACHE_NAME = "feedbuddy-v1";
+const CACHE_NAME = "feedbuddy-v2";
 const ASSETS = [
   './',
   './index.html',

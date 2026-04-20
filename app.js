@@ -108,16 +108,6 @@ function diffMin(t1, t2) { return (new Date(t1) - new Date(t2)) / 60000; }
 // ============================================================
 // ML Estimation by age
 // ============================================================
-function estimateBFML() {
-  const bd = settings.birthDate ? new Date(settings.birthDate + 'T00:00:00') : new Date('2026-04-14T00:00:00');
-  const ageDays = Math.max(0, Math.floor((Date.now() - bd) / 86400000));
-  const weeks = ageDays / 7;
-  if (weeks < 4) return 75;       // 0-1mo: 60-90ml, default 75
-  if (weeks < 8) return 105;      // 1-2mo: 90-120ml, default 105
-  if (weeks < 13) return 135;     // 2-3mo: 120-150ml, default 135
-  return 165;                      // 3-6mo: 150-180ml, default 165
-}
-
 function feedingIntervalHours() {
   const bd = settings.birthDate ? new Date(settings.birthDate + 'T00:00:00') : new Date('2026-04-14T00:00:00');
   const ageDays = Math.max(0, Math.floor((Date.now() - bd) / 86400000));
@@ -142,44 +132,12 @@ function totalBFDuration(sessions) {
   return sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
 }
 
-function totalEstML(sessions) {
-  const perMl = estimateBFML();
-  // For combined sessions, count once per combined session
-  const uniqueSessions = [];
-  const seen = new Set();
-  for (const s of [...sessions].reverse()) {
-    if (s.side === 'combined' && s.combinedWith) {
-      // Already included via its parts
-    } else if (!seen.has(s.id)) {
-      seen.add(s.id);
-      uniqueSessions.push(s);
-    }
-  }
-  // Simpler: count all sessions including combined as 1 entry
-  let count = 0;
-  const counted = new Set();
-  for (const s of [...sessions].reverse()) {
-    if (s.side === 'combined' && s.combinedWith) {
-      for (const cid of s.combinedWith) counted.add(cid);
-      counted.add(s.id);
-      count++;
-    } else if (!counted.has(s.id)) {
-      counted.add(s.id);
-      count++;
-    }
-  }
-  return count * perMl;
-}
-
 function renderBFStats() {
   const today = getTodayBF();
   const totalDur = totalBFDuration(today);
-  const totalMl = totalEstML(today);
-  const last = getLastBF();
 
   document.getElementById('stat-bf-sessions').textContent = today.length;
   document.getElementById('stat-bf-duration').textContent = formatMin(totalDur);
-  document.getElementById('stat-bf-est-ml').textContent = `~${totalMl}ml`;
 }
 
 function renderBFSessions() {
@@ -196,7 +154,6 @@ function renderBFSessions() {
     return;
   }
 
-  const mlPer = estimateBFML();
   const sideLabels = { left: 'Kiri', right: 'Kanan', combined: 'Kiri+Kanan' };
 
   el.innerHTML = today.slice().reverse().map(s => {
@@ -204,17 +161,13 @@ function renderBFSessions() {
     const isCombined = s.side === 'combined';
     const label = isCombined ? 'Kiri+Kanan' : sideLabels[s.side];
     const duration = formatDur(s.duration);
-    const estMl = isCombined ? `~${mlPer * 2}ml` : `~${mlPer}ml`;
     return `
       <div class="log-item">
         <div class="log-item-left">
           <span class="log-item-title">${label}</span>
           <span class="log-item-time">${time}</span>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
-          <span class="log-item-value teal">${duration}</span>
-          <span style="font-size:0.7rem;color:var(--text-3);">${estMl}</span>
-        </div>
+        <span class="log-item-value teal">${duration}</span>
       </div>`;
   }).join('');
 }
@@ -274,36 +227,8 @@ function resumeFeedingTimer() {
 
 function stopFeedingTimer() {
   if (!feedingState.running) return;
-  clearInterval(feedingInterval);
-  feedingInterval = null;
-  const end = Date.now();
-  // If paused, use pausedAt as the end time
-  const endTime = feedingState.paused ? feedingState.pausedAt : end;
-  const duration = endTime - feedingState.startTime;
-  feedingState.running = false;
-
-  bfSessions.push({
-    id: uid(),
-    start: new Date(feedingState.startTime).toISOString(),
-    end: new Date(endTime).toISOString(),
-    duration,
-    side: feedingState.side,
-    combinedWith: null,
-  });
-  save(K.bfSessions, bfSessions);
-
-  document.getElementById('btn-feeding-toggle').style.display = '';
-  document.getElementById('btn-feeding-toggle').querySelector('span').textContent = 'MULAI';
-  document.getElementById('btn-feeding-jeda').style.display = 'none';
-  document.getElementById('btn-feeding-selesai').style.display = 'none';
-  document.getElementById('btn-feeding-reset').style.display = 'none';
-  document.getElementById('feeding-subtitle').textContent = 'Sesi selesai — ' + formatMin(duration);
-  feedingState.elapsed = 0;
-  feedingState.paused = false;
-  feedingState.pausedAt = null;
-  renderBFStats();
-  renderBFSessions();
-  renderFeedingSchedule();
+  // Delegate to handleFeedingStop which has combine logic
+  handleFeedingStop();
 }
 
 function resetFeedingTimer() {
@@ -322,41 +247,28 @@ function resetFeedingTimer() {
   document.getElementById('feeding-subtitle').textContent = 'Pilih sisi dan mulai';
 }
 
-function askCombine(prevSession, newSide, callback) {
-  const modal = document.getElementById('combine-modal');
-  const desc = document.getElementById('combine-modal-desc');
-  const prevSide = prevSession.side === 'combined' ? 'Kiri+Kanan' : (prevSession.side === 'left' ? 'Kiri' : 'Kanan');
-  desc.textContent = `Sesi sebelumnya (${prevSide}, ${formatDur(prevSession.duration)}) belum 10 menit. Gabungkan?`;
-  modal.classList.remove('hidden');
-  document.getElementById('combine-dontask').checked = false;
+function askCombine(prevSession, newSide) {
+  return new Promise(resolve => {
+    const modal = document.getElementById('combine-modal');
+    const desc = document.getElementById('combine-modal-desc');
+    const prevSide = prevSession.side === 'combined' ? 'Kiri+Kanan' : (prevSession.side === 'left' ? 'Kiri' : 'Kanan');
+    desc.textContent = `Sesi sebelumnya (${prevSide}, ${formatDur(prevSession.duration)}) belum 10 menit. Gabungkan?`;
+    modal.classList.remove('hidden');
+    document.getElementById('combine-dontask').checked = false;
 
-  function cleanup() {
-    modal.classList.add('hidden');
-    document.getElementById('combine-gabung').removeEventListener('click', onGabung);
-    document.getElementById('combine-pisah').removeEventListener('click', onPisah);
-  }
-  function onGabung() { cleanup(); callback(true); }
-  function onPisah() { cleanup(); callback(false); }
-  document.getElementById('combine-gabung').addEventListener('click', onGabung);
-  document.getElementById('combine-pisah').addEventListener('click', onPisah);
+    function cleanup() {
+      modal.classList.add('hidden');
+      document.getElementById('combine-gabung').removeEventListener('click', onGabung);
+      document.getElementById('combine-pisah').removeEventListener('click', onPisah);
+    }
+    function onGabung() { cleanup(); resolve(true); }
+    function onPisah() { cleanup(); resolve(false); }
+    document.getElementById('combine-gabung').addEventListener('click', onGabung);
+    document.getElementById('combine-pisah').addEventListener('click', onPisah);
+  });
 }
 
-function combineSessions(prevId, newId) {
-  const prev = bfSessions.find(s => s.id === prevId);
-  const curr = bfSessions.find(s => s.id === newId);
-  if (!prev || !curr) return;
-
-  // Merge: new session becomes the combined one
-  curr.side = 'combined';
-  curr.combinedWith = [prevId, newId];
-  curr.duration = (prev.duration || 0) + (curr.duration || 0);
-  // Mark prev as combined reference
-  prev.side = 'combined_old';
-  prev.combinedWithRef = newId;
-  save(K.bfSessions, bfSessions);
-}
-
-function handleFeedingToggle() {
+async function handleFeedingToggle() {
   if (feedingState.running) {
     if (feedingState.paused) {
       resumeFeedingTimer();
@@ -382,17 +294,16 @@ function handleFeedingToggle() {
       pendingCombine = { prevId: last.id, newSide };
       startFeedingTimer(newSide);
     } else {
-      askCombine(last, newSide, (doCombine) => {
-        if (doCombine) {
-          const dontAskAgain = document.getElementById('combine-dontask').checked;
-          if (dontAskAgain) {
-            settings.dontAskGabung = true;
-            save(K.settings, settings);
-          }
-          pendingCombine = { prevId: last.id, newSide };
+      const doCombine = await askCombine(last, newSide);
+      if (doCombine) {
+        const dontAskAgain = document.getElementById('combine-dontask').checked;
+        if (dontAskAgain) {
+          settings.dontAskGabung = true;
+          save(K.settings, settings);
         }
-        startFeedingTimer(newSide);
-      });
+        pendingCombine = { prevId: last.id, newSide };
+      }
+      startFeedingTimer(newSide);
     }
   } else {
     startFeedingTimer(newSide);
@@ -404,8 +315,11 @@ function handleFeedingStop() {
   clearInterval(feedingInterval);
   feedingInterval = null;
   const end = Date.now();
-  const duration = end - feedingState.startTime;
+  const endTime = feedingState.paused ? feedingState.pausedAt : end;
+  const duration = endTime - feedingState.startTime;
   feedingState.running = false;
+  feedingState.paused = false;
+  feedingState.pausedAt = null;
 
   const newId = uid();
   let newSession = {
@@ -423,7 +337,7 @@ function handleFeedingStop() {
     if (prev && prev.side !== 'combined' && prev.side !== 'combined_old') {
       // Merge into new session
       newSession.side = 'combined';
-      newSession.combinedWith = [pendingCombine.id, newId].filter(Boolean);
+      newSession.combinedWith = [pendingCombine.prevId, newId].filter(Boolean);
       newSession.duration = (prev.duration || 0) + duration;
       prev.side = 'combined_old';
       prev.combinedWithRef = newId;
@@ -480,7 +394,7 @@ function initFeeding() {
     }
   });
   document.getElementById('btn-feeding-selesai').addEventListener('click', () => {
-    stopFeedingTimer();
+    handleFeedingStop();
     checkFloatingPlayerVisibility();
   });
   document.getElementById('btn-feeding-reset').addEventListener('click', resetFeedingTimer);

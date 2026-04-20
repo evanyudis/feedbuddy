@@ -1,8 +1,6 @@
 /* ===================================================
-   BumpBuddy — iOS 26 Liquid Glass Design System
-   Skills: swiftui-pro, high-end-visual, emil-design-eng,
-   redesign-existing, design-taste-frontend, onboard
-   iOS 26 HIG: Liquid Glass nav, Dynamic Island safe areas
+   FeedBuddy — Breastfeeding & Diaper Tracker
+   Design System: Geist, OKLCH tokens, teal accent
    =================================================== */
 
 /* ========================
@@ -829,8 +827,9 @@ body {
   /* No border override — pill shape comes from r-full + container overflow:hidden */
 }
 .segment-btn.active {
-  background: var(--surface); color: var(--text-1);
-  box-shadow: var(--shadow-sm); font-weight: 600;
+  background: var(--accent) !important;
+  color: var(--text-inv) !important;
+  font-weight: 600;
 }
 .segment-btn:active { transform: scale(0.97); }
 
